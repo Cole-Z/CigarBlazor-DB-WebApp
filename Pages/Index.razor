@@ -1,0 +1,170 @@
+﻿@using Microsoft.EntityFrameworkCore;
+@using Cigars.Data;
+@page "/"
+@inject IDbContextFactory<CigarDataContext> CigarDataContextFactory;
+@inject IJSRuntime JSRuntime
+
+
+<PageTitle>Cigar DB</PageTitle>
+
+@if (ShowCreate)
+{
+	<h3>Add a new Cigar</h3>
+
+	<div class="row">
+		<label for="Brand" class="col-4 col-form-label">Brand</label>
+		<div class="col-8">
+			<input id="Brand" name="Brand" type="text" class="form-control" @bind="@NewCigar.Brand">
+		</div>
+	</div>
+	<div class="row">
+		<label for="Name" class="col-4 col-form-label">Name</label>
+		<div class="col-8">
+			<input id="Name" name="Name" type="text" class="form-control" @bind="@NewCigar.Name">
+		</div>
+	</div>
+	<div class="row">
+		<label for="Wrapper" class="col-4 col-form-label">Wrapper</label>
+		<div class="col-8">
+			<input id="Wrapper" name="Wrapper" type="text" class="form-control" @bind="@NewCigar.Wrapper">
+		</div>
+	</div>
+	<div class="row">
+		<label for="Origin" class="col-4 col-form-label">Origin</label>
+		<div class="col-8">
+			<input id="Origin" name="Origin" type="text" class="form-control" @bind="@NewCigar.Origin">
+		</div>
+	</div>
+	<div class="row">
+		<label for="Binder" class="col-4 col-form-label">Binder</label>
+		<div class="col-8">
+			<input id="Binder" name="B" type="text" class="form-control" @bind="@NewCigar.Binder">
+		</div>
+	</div>
+	<div class="row">
+		<label for="Filler" class="col-4 col-form-label">Filler</label>
+		<div class="col-8">
+			<input id="Filler" name="Filler" type="text" class="form-control" @bind="@NewCigar.Filler">
+		</div>
+	</div>
+	<div class="row">
+		<label for="Body" class="col-4 col-form-label">Body</label>
+		<div class="col-8">
+			<input id="Body" name="Body" type="text" class="form-control" @bind="@NewCigar.Body">
+		</div>
+	</div>
+	<div class="row">
+		<label for="Price" class="col-4 col-form-label">Price</label>
+		<div class="col-8">
+			<input id="Price" name="Price" type="text" class="form-control" @bind="@NewCigar.Price">
+		</div>
+	</div>
+	<div class="form-group row">
+		<div class="offset-4 col-8">
+			<button name="submit" type="submit" class="btn btn-primary" @onclick="CreateNewCigar">Submit</button>
+		</div>
+	</div>
+}
+else
+{
+	<div class="form-group row">
+		<div class="offset-4 col-8 mt-2">
+			<button name="submit" type="submit" class="btn btn-primary" @onclick="ShowCreateForm">Add a New Cigar</button>
+		</div>
+	</div>
+
+	@if(@OurCigars is not null && OurCigars.Count > 0)
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-bordered table-light border-dark">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Brand</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Wrapper</th>
+                        <th scope="col">Origin</th>
+                        <th scope="col">Binder</th>
+                        <th scope="col">Filler</th>
+                        <th scope="col">Body</th>
+                        <th scope="col">Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var cigar in OurCigars)
+                    {
+                        @if (!@ShowEdit)
+                        {
+                            <tr>
+                                <th scope="row">@cigar.Id</th>
+                                <td>@cigar.Brand</td>
+                                <td>@cigar.Name</td>
+                                <td>@cigar.Wrapper</td>
+                                <td>@cigar.Origin</td>
+                                <td>@cigar.Binder</td>
+                                <td>@cigar.Filler</td>
+                                <td>@cigar.Body</td>
+                                <td>@cigar.Price</td>
+                                <td><button name="submit" type="submit" class="btn btn-primary" @onclick="() => ShowEditForm(cigar)">Edit</button></td>
+                                <td><button name="submit" type="submit" class="btn btn-primary" @onclick="() => DeleteCigar(cigar)">Delete</button></td>
+                            </tr>
+                        }
+                        else
+                        {
+                            if (@CigarToUpdate is not null && @CigarToUpdate.Id == cigar.Id)
+                            {
+                                <tr>
+                                    <th scope="row">@cigar.Id</th>
+                                    <td><input id="Brand" name="Brand" type="text" class="form-control" @bind="@CigarToUpdate.Brand" /></td>
+                                    <td><input id="Name" name="Name" type="text" class="form-control" @bind="@CigarToUpdate.Name" /></td>
+                                    <td><input id="Wrapper" name="Wrapper" type="text" class="form-control" @bind="@CigarToUpdate.Wrapper" /></td>
+                                    <td><input id="Origin" name="Origin" type="text" class="form-control" @bind="@CigarToUpdate.Origin" /></td>
+                                    <td><input id="Binder" name="Binder" type="text" class="form-control" @bind="@CigarToUpdate.Binder" /></td>
+                                    <td><input id="Filler" name="Filler" type="text" class="form-control" @bind="@CigarToUpdate.Filler" /></td>
+                                    <td><input id="Body" name="Body" type="text" class="form-control" @bind="@CigarToUpdate.Body" /></td>
+                                    <td><input id="Price" name="Price" type="text" class="form-control" @bind="@CigarToUpdate.Price" /></td>
+                                    <td><button name="submit" type="submit" class="btn btn-primary" @onclick="@UpdateCigar">Save</button></td>
+                                    <td></td>
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr>
+                                    <th scope="row">@cigar.Id</th>
+                                    <td>@cigar.Brand</td>
+                                    <td>@cigar.Name</td>
+                                    <td>@cigar.Wrapper</td>
+                                    <td>@cigar.Origin</td>
+                                    <td>@cigar.Binder</td>
+                                    <td>@cigar.Filler</td>
+                                    <td>@cigar.Body</td>
+                                    <td>@cigar.Price</td>
+                                    <td><button name="submit" type="submit" class="btn btn-primary" @onclick="() => ShowEditForm(cigar)">Edit</button></td>
+                                    <td></td>
+                                </tr>
+                            }
+
+                        }
+
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <h2>Search for a Cigar based on brand</h2>
+
+        <div class="form-group row">
+            <label for="BrandSearch" class="col-4 col-form-label">Search by Brand</label>
+            <div class="col-8">
+                <input id="BrandSearch" name="BrandSearch" type="text" class="form-control" @bind="@BrandSearchText">
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="offset-4 col-8">
+                <button name="submit" type="submit" class="btn btn-primary" @onclick="SearchByBrand">Search</button>
+            </div>
+        </div>
+
+    }
+}
+
